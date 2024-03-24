@@ -14,15 +14,16 @@ from flask_wtf import FlaskForm
 from flask_ckeditor import CKEditor
 from datetime import date
 import smtplib
+import os
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 Bootstrap5(app)
 CKEditor(app)
 year = date.today().year
-my_email = "satwikgarg2005@gmail.com"
-password = "zcqj yjmm ckhx cuch"
+my_email = os.environ.get('MY_EMAIL')
+password = os.environ.get('MY_PASSWORD')
 log_in_manager = flask_login.LoginManager()
 log_in_manager.init_app(app)
 
@@ -32,7 +33,7 @@ class Base(DeclarativeBase):
     pass
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///posts.db")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -267,7 +268,7 @@ def contact():
             connection.starttls()
             connection.login(user=my_email, password=password)
             connection.sendmail(from_addr=my_email,
-                                to_addrs="satwikgarg2017@gmail.com",
+                                to_addrs=os.environ.get("RECEIVER_EMAIL"),
                                 msg=f"Subject: New User\n\n"
                                     f"Name: {name}\n"
                                     f"Email: {email}\n"
@@ -278,4 +279,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5003)
+    app.run(debug=False, port=5003)
